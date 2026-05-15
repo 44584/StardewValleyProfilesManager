@@ -7,6 +7,7 @@ use serde_json;
 use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
+use json5;
 
 /// Manifest.json 的两种格式共用字段
 #[derive(Debug, Deserialize)]
@@ -19,7 +20,8 @@ struct ManifestBase {
     version: String,
     #[serde(rename = "Description")]
     description: Option<String>,
-    #[serde(rename = "UniqueID")]
+    #[serde(alias = "UniqueID")]
+    #[serde(rename = "UniqueId")]
     unique_id: String,
     #[serde(rename = "UpdateKeys")]
     update_keys: Option<Vec<String>>,
@@ -54,7 +56,8 @@ struct ContentPackManifest {
 /// 依赖项结构
 #[derive(Debug, Deserialize, Serialize)]
 struct Dependency {
-    #[serde(rename = "UniqueID")]
+    #[serde(alias = "UniqueID")]
+    #[serde(rename = "UniqueId")]
     unique_id: String,
     #[serde(rename = "MinimumVersion")]
     minimum_version: Option<String>,
@@ -65,7 +68,8 @@ struct Dependency {
 /// 内容包宿主结构
 #[derive(Debug, Deserialize, Serialize)]
 struct ContentPackFor {
-    #[serde(rename = "UniqueID")]
+    #[serde(alias = "UniqueID")]
+    #[serde(rename = "UniqueId")]
     unique_id: String,
     #[serde(rename = "MinimumVersion")]
     minimum_version: Option<String>,
@@ -128,10 +132,19 @@ impl ModScanner {
     
     /// 解析单个manifest.json文件
     pub fn parse_manifest_json(&self, manifest_path: &str) -> Result<ModInfo, String> {
-        let manifest_file = fs::File::open(manifest_path)
-            .map_err(|e| format!("无法打开manifest.json文件: {}", e))?;
+        let manifest_content = fs::read_to_string(manifest_path)
+            .map_err(|e| format!("无法读取manifest.json文件: {}", e))?;
         
-        let manifest_content: serde_json::Value = serde_json::from_reader(manifest_file)
+        // 处理可能的UTF-8 BOM (Byte Order Mark)
+        let manifest_content_without_bom = if manifest_content.starts_with('\u{feff}') {
+            // 移除BOM
+            manifest_content[3..].to_string()
+        } else {
+            manifest_content
+        };
+        
+        // 使用 json5 解析（支持注释和尾随逗号）
+        let manifest_value: serde_json::Value = json5::from_str(&manifest_content_without_bom)
             .map_err(|e| format!("JSON解析失败: {}", e))?;
         
         // 计算manifest.json的哈希值
@@ -139,7 +152,7 @@ impl ModScanner {
             .unwrap_or_else(|_| "unknown_hash".to_string());
         
         // 尝试解析为SMAPI模组格式
-        if let Ok(smapi_manifest) = serde_json::from_value::<SmapiManifest>(manifest_content.clone()) {
+        if let Ok(smapi_manifest) = serde_json::from_value::<SmapiManifest>(manifest_value.clone()) {
             let base = smapi_manifest.base;
             let dependencies_json = smapi_manifest.dependencies.map(|deps| {
                 serde_json::to_string(&deps).unwrap_or_default()
@@ -168,7 +181,7 @@ impl ModScanner {
             })
         }
         // 尝试解析为内容包格式
-        else if let Ok(content_pack_manifest) = serde_json::from_value::<ContentPackManifest>(manifest_content) {
+        else if let Ok(content_pack_manifest) = serde_json::from_value::<ContentPackManifest>(manifest_value) {
             let base = content_pack_manifest.base;
             let dependencies_json = content_pack_manifest.dependencies.map(|deps| {
                 serde_json::to_string(&deps).unwrap_or_default()
