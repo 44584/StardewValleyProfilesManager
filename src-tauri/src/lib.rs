@@ -1,14 +1,14 @@
 //! Stardew Profiles Manager - Tauri后端主库
 //! 
 //! 本模块整合所有功能模块并注册Tauri命令供前端调用
-mod config;
-mod utils;
-mod models;
-mod database;
-mod scanner;
-mod link_manager;
-mod game_launcher;
-mod commands;
+pub mod config;
+pub mod utils;
+pub mod models;
+pub mod database;
+pub mod scanner;
+pub mod link_manager;
+pub mod game_launcher;
+pub mod commands;
 
 use tauri::Builder;
 
@@ -30,6 +30,7 @@ pub fn run() {
             commands::mod_commands::remove_mod_from_profile,
             commands::mod_commands::toggle_mod_enabled,
             commands::mod_commands::get_all_mods,
+            commands::mod_commands::test_scan_mods,
             
             // 游戏启动相关命令
             commands::game_commands::launch_game_with_profile,
