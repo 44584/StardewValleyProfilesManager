@@ -6,14 +6,19 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProfileMod {
     /// 关联记录ID
+    #[serde(rename = "id")]
     pub id: Option<i32>,
     /// 关联的Profile ID
+    #[serde(rename = "profileId")]
     pub profile_id: i32,
     /// 关联的Mod ID
+    #[serde(rename = "modId")]
     pub mod_id: i32,
     /// 在该配置中是否启用
+    #[serde(rename = "isEnabled")]
     pub is_enabled: bool,
     /// 符号链接路径 (可为空，表示未创建链接)
+    #[serde(rename = "linkPath")]
     pub link_path: Option<PathBuf>,
 }
 

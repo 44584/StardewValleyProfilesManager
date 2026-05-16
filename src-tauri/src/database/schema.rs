@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS profiles (
     name TEXT NOT NULL UNIQUE,
     description TEXT,
     profile_path TEXT NOT NULL,
-    is_active BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -54,7 +53,6 @@ pub const CREATE_INDEXES: &[&str] = &[
     "CREATE INDEX IF NOT EXISTS idx_mods_author ON mods(author);",
     "CREATE INDEX IF NOT EXISTS idx_mods_minimum_api_version ON mods(minimum_api_version);",
     "CREATE INDEX IF NOT EXISTS idx_profiles_name ON profiles(name);",
-    "CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON profiles(is_active);",
     "CREATE INDEX IF NOT EXISTS idx_profile_mods_profile_id ON profile_mods(profile_id);",
     "CREATE INDEX IF NOT EXISTS idx_profile_mods_mod_id ON profile_mods(mod_id);",
     "CREATE INDEX IF NOT EXISTS idx_profile_mods_is_enabled ON profile_mods(is_enabled);",

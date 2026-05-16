@@ -143,7 +143,7 @@ fn test_missing_manifest_handling() {
 
 #[test]
 fn test_real_mods() {
-    // C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods_simple
+    // C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods
     let scanner = ModScanner;
     let mods = scanner
         .scan_mods_directory(
@@ -244,7 +244,8 @@ fn test_content_pack_for_field_name_compatibility() {
     let mod_dir = create_test_manifest(&temp_dir, manifest_content);
 
     let scanner = ModScanner;
-    let mods = scanner.scan_mods_directory(temp_dir.path().to_str().unwrap())
+    let mods = scanner
+        .scan_mods_directory(temp_dir.path().to_str().unwrap())
         .expect("Should parse ContentPackFor with UniqueId (lowercase d) successfully");
 
     assert_eq!(mods.len(), 1);
@@ -252,7 +253,10 @@ fn test_content_pack_for_field_name_compatibility() {
 
     assert_eq!(mod_info.name, "Test Content Pack Lowercase d");
     assert_eq!(mod_info.unique_id, "TestAuthor.TestContentPackLowerD");
-    assert_eq!(mod_info.content_pack_for, Some("Pathoschild.ContentPatcher".to_string()));
+    assert_eq!(
+        mod_info.content_pack_for,
+        Some("Pathoschild.ContentPatcher".to_string())
+    );
     assert_eq!(mod_info.mod_path, mod_dir);
 }
 
@@ -395,7 +399,8 @@ fn test_stardew_hack_manifest() {
     let mod_dir = create_test_manifest(&temp_dir, manifest_content);
 
     let scanner = ModScanner;
-    let mods = scanner.scan_mods_directory(temp_dir.path().to_str().unwrap())
+    let mods = scanner
+        .scan_mods_directory(temp_dir.path().to_str().unwrap())
         .expect("Should parse StardewHack manifest successfully");
 
     assert_eq!(mods.len(), 1);
@@ -426,7 +431,8 @@ fn test_gmcm_options_manifest() {
     let mod_dir = create_test_manifest(&temp_dir, manifest_content);
 
     let scanner = ModScanner;
-    let mods = scanner.scan_mods_directory(temp_dir.path().to_str().unwrap())
+    let mods = scanner
+        .scan_mods_directory(temp_dir.path().to_str().unwrap())
         .expect("Should parse GMCM Options manifest successfully");
 
     assert_eq!(mods.len(), 1);

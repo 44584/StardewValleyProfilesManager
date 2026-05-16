@@ -13,8 +13,7 @@ pub struct Profile {
     pub description: Option<String>,
     /// Profile目录的实际路径
     pub profile_path: PathBuf,
-    /// 是否为当前激活的配置
-    pub is_active: bool,
+    // Removed is_active field as activation state is no longer needed
 }
 
 impl Profile {
@@ -25,7 +24,7 @@ impl Profile {
             name,
             description: None,
             profile_path,
-            is_active: false,
+            // is_active field removed
         }
     }
 }

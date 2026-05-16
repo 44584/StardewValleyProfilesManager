@@ -2,3 +2,4 @@
 pub mod profile_commands;
 pub mod mod_commands;
 pub mod game_commands;
+pub mod config_commands;

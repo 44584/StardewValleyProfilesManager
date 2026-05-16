@@ -1,116 +1,664 @@
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafb);
-}
+/* 全局样式 */
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  --primary-color: #4a90e2;
+  --success-color: #5cb85c;
+  --danger-color: #d9534f;
+  --warning-color: #f0ad4e;
+  --secondary-color: #6c757d;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --border-color: #dee2e6;
+  --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  --transition: all 0.2s ease-in-out;
 }
 
-.container {
+* {
+  box-sizing: border-box;
   margin: 0;
-  padding-top: 10vh;
+  padding: 0;
+}
+
+/* 取消横向滚轮 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--dark-color);
+  background-color: #f5f5f5;
+  overflow-x: hidden; /* 取消横向滚动 */
+}
+
+.app {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  overflow-x: hidden; /* 确保应用容器也不横向滚动 */
+}
+
+/* 头部样式 */
+header {
+  background: linear-gradient(135deg, var(--primary-color), #357abd);
+  color: white;
+  padding: 0.8rem 1.5rem; /* 减小内边距 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+  font-size: 1.4rem; /* 减小字体大小 */
+  font-weight: 600;
+  margin: 0; /* 移除默认margin */
+}
+
+/* 主布局 - 三栏式 */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1800px;
+  margin: 0 auto;
+  height: calc(100vh - 120px); /* 减去头部和间距的高度 */
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+  .main-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    height: calc(100vh - 100px);
+  }
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 80px);
+  }
+  
+  header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* 区域通用样式 */
+section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
+  /* 各栏独立滚动 */
+  overflow-y: auto;
+  /* 移除固定最小高度，让内容自然填充 */
+  min-height: auto;
+  /* 充分利用可用空间 */
+  height: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
+.section-header {
+  margin-bottom: 1.5rem;
+  flex-shrink: 0; /* 确保头部不被压缩 */
 }
 
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
+/* Profile卡片列表 */
+.profiles-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px; /* 为滚动条留出空间 */
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* 移除卡片间距，让卡片紧贴 */
 }
 
-.row {
+.profile-card {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 0; /* 移除底部外边距 */
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.profile-card:not(:last-child) {
+  border-bottom: none; /* 相邻卡片共享边框 */
+  border-radius: 6px 6px 0 0; /* 上卡片圆角只在顶部 */
+}
+
+.profile-card:not(:first-child) {
+  border-top: none; /* 相邻卡片共享边框 */
+  border-radius: 0 0 6px 6px; /* 下卡片圆角只在底部 */
+}
+
+/* 模组网格 - 紧贴排列 */
+.mods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0; /* 移除卡片间距，让卡片紧贴 */
+  flex: 1;
+  /* 确保网格内容不会导致横向溢出 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px; /* 为滚动条留出空间 */
+}
+
+.mod-card {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: white;
+  transition: all 0.2s ease;
+  height: 160px; /* 固定高度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 网格布局中相邻卡片共享边框 */
+.mods-grid .mod-card {
+  border-radius: 0;
+}
+
+.mods-grid .mod-card:nth-child(3n+1) {
+  border-radius: 6px 0 0 6px; /* 左侧卡片左圆角 */
+}
+
+.mods-grid .mod-card:nth-child(3n+3) {
+  border-radius: 0 6px 6px 0; /* 右侧卡片右圆角 */
+}
+
+.mods-grid .mod-card:nth-child(-n+3) {
+  border-radius: 6px 6px 0 0; /* 第一行卡片上圆角 */
+}
+
+/* 最后一行卡片下圆角 */
+.mods-grid .mod-card:nth-last-child(-n+3):nth-child(3n+1) {
+  border-radius: 6px 0 0 6px;
+}
+
+.mods-grid .mod-card:nth-last-child(-n+3):nth-child(3n+2) {
+  border-radius: 0;
+}
+
+.mods-grid .mod-card:nth-last-child(-n+3):nth-child(3n+3) {
+  border-radius: 0 6px 6px 0;
+}
+
+/* 扫描控制区域 */
+.scan-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+  align-items: center; /* 垂直居中对齐 */
+}
+
+.scan-controls .form-input {
+  margin-bottom: 0;
+  padding: 0.4rem 0.75rem; /* 减小内边距以降低高度 */
+  font-size: 0.9rem;
+  height: auto; /* 允许内容决定高度 */
+}
+
+/* 扫描按钮使用标准按钮样式，但保持较小高度 */
+.scan-controls .btn {
+  padding: 0.4rem 0.75rem; /* 与输入框保持一致的高度 */
+  font-size: 0.9rem;
+  min-height: auto;
+  height: auto;
+  white-space: nowrap; /* 防止文字换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 溢出时显示省略号 */
+  min-width: 80px; /* 确保按钮有足够的宽度容纳两个字 */
+}
+
+/* 扫描控制区域保持固定高度 */
+.scan-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* 可用模组计数保持固定 */
+.mods-count {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+/* 分页控件保持固定 */
+.pagination {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
-a {
+/* 按钮样式 */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  min-height: 36px;
 }
 
-a:hover {
-  color: #535bf2;
+.btn:hover:not(.btn-disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-h1 {
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover:not(.btn-disabled) {
+  background-color: #3a7bc8;
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.btn-success:hover:not(.btn-disabled) {
+  background-color: #4cae4c;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover:not(.btn-disabled) {
+  background-color: #d43f3a;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover:not(.btn-disabled) {
+  background-color: #5a6268;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline:hover:not(.btn-disabled) {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 表单元素 */
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* Profile卡片样式 */
+.profile-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.profile-card.selected {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.profile-card.active {
+  border-left: 4px solid var(--success-color);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.profile-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.profile-description {
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* 模组卡片样式 */
+.mod-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: var(--transition);
+  /* 防止卡片内容过长导致布局问题 */
+  word-break: break-word;
+}
+
+.mod-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* 已添加模组卡片样式 - 固定高度 */
+.mod-card.added {
+  height: 160px; /* 固定高度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 确保mod-details在固定高度下正确显示 */
+.mod-card.added .mod-details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.mod-card.added .mod-details p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mod-card.available.added {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+}
+
+.mod-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.mod-header h4 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--dark-color);
+  /* 防止标题过长 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 模组操作区域 - 包含开关和移除按钮 */
+.mod-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+/* 右侧可用模组的添加按钮样式 */
+.available .mod-header .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  min-height: auto;
+}
+
+.mod-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-label {
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+}
+
+/* 开关样式 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .2s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--success-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.remove-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+/* 小型移除按钮样式 */
+.remove-btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  min-height: auto;
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--secondary-color);
+  font-style: italic;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.empty-state p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* 错误提示 */
+.error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.error-message {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  max-width: 500px;
+  width: 90%;
   text-align: center;
 }
 
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+.error-message p {
+  margin-bottom: 1rem;
+  color: var(--danger-color);
   font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-button {
-  cursor: pointer;
+/* 创建Profile表单 */
+.create-profile-form {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
+/* 分页控件样式 */
+.pagination button {
+  padding: 0.25rem 0.5rem;
+  min-width: 32px;
+  text-align: center;
 }
 
-#greet-input {
-  margin-right: 5px;
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
+.pagination-info {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
 
-  a:hover {
-    color: #24c8db;
-  }
+/* SMPI路径配置区域 */
+.smapi-path-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
 
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
+.smapi-controls,
+.scan-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smapi-button-group,
+.mods-button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.smapi-button-group .btn,
+.mods-button-group .btn {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* SMPI路径信息显示 */
+.smapi-info {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 0.9em;
+  word-break: break-all;
 }
