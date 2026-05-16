@@ -9,20 +9,23 @@ use tauri::command;
 pub fn scan_and_register_mods(mods_directory: String) -> Result<Vec<crate::models::mod_info::ModInfo>, String> {
     // 初始化数据库连接
     let conn = connection::init_database()?;
-    
+
     // 创建扫描器和仓库
     let scanner = ModScanner;
     let repo = ModRepository::new(conn);
-    
+
     // 扫描目录获取所有有效模组
     let scanned_mods = scanner.scan_mods_directory(&mods_directory)?;
-    
+
     // 对每个扫描到的模组进行upsert操作
     for mod_info in &scanned_mods {
         repo.save_or_update(mod_info)?;
     }
-    
-    Ok(scanned_mods)
+
+    // 重新从数据库查询，返回带有正确 id 的完整 ModInfo 列表
+    let conn = connection::init_database()?;
+    let repo = ModRepository::new(conn);
+    repo.get_all_mods()
 }
 
 #[command]

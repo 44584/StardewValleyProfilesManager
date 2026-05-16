@@ -11,7 +11,7 @@ pub struct ProfileMod {
     /// 关联的Profile ID
     #[serde(rename = "profileId")]
     pub profile_id: i32,
-    /// 关联的Mod ID
+    /// 关联的Mod ID, 而不是ModInfo中的unique_id
     #[serde(rename = "modId")]
     pub mod_id: i32,
     /// 在该配置中是否启用

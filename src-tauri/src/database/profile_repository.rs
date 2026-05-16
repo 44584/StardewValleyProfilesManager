@@ -112,25 +112,19 @@ impl ProfileRepository {
     
     /// 删除Profile
     pub fn delete(&self, id: i32) -> Result<(), String> {
-        // 首先检查是否存在关联的ProfileMod记录
-        let has_associations = self.connection
-            .prepare("SELECT COUNT(*) FROM profile_mods WHERE profile_id = ?1")
-            .map_err(|e| format!("准备检查关联记录语句失败: {}", e))?
-            .query_row(params![id], |row| row.get::<_, i32>(0))
-            .map_err(|e| format!("检查关联记录失败: {}", e))? > 0;
-        
-        if has_associations {
-            return Err("无法删除包含模组的Profile，请先移除所有关联模组".to_string());
-        }
-        
+        // 先级联删除关联记录，确保外键约束不会阻止删除
+        self.connection
+            .execute("DELETE FROM profile_mods WHERE profile_id = ?1", params![id])
+            .map_err(|e| format!("删除Profile关联模组失败: {}", e))?;
+
         let result = self.connection
             .execute("DELETE FROM profiles WHERE id = ?1", params![id])
             .map_err(|e| format!("删除Profile失败: {}", e))?;
-        
+
         if result == 0 {
             return Err("未找到要删除的Profile".to_string());
         }
-        
+
         Ok(())
     }
     
