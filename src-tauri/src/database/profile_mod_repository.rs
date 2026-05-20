@@ -179,4 +179,36 @@ impl ProfileModRepository {
 
         Ok(count > 0)
     }
+
+    /// 获取使用指定Mod的所有Profile关联
+    /// 参数:
+    /// - mod_id: 模组在数据库中的id(不是uniqueId)
+    /// 返回:
+    /// - 成功: 相关的profile_mod记录
+    /// - 失败: 错误信息
+    pub fn get_profiles_using_mod(&self, mod_id: i32) -> Result<Vec<ProfileMod>, String> {
+        let mut stmt = self.connection
+        .prepare(
+            "SELECT id, profile_id, mod_id, is_enabled, link_path FROM profile_mods WHERE mod_id = ?1"
+        )
+        .map_err(|e| format!("准备查询使用Mod的Profiles语句失败: {}", e))?;
+
+        let profile_mods: Vec<ProfileMod> = stmt
+            .query_map(params![mod_id], |row| {
+                Ok(ProfileMod {
+                    id: Some(row.get("id")?),
+                    profile_id: row.get("profile_id")?,
+                    mod_id: row.get("mod_id")?,
+                    is_enabled: row.get("is_enabled")?,
+                    link_path: row
+                        .get::<_, Option<String>>("link_path")?
+                        .map(PathBuf::from),
+                })
+            })
+            .map_err(|e| format!("查询使用Mod的Profiles失败: {}", e))?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| format!("收集使用Mod的Profiles结果失败: {}", e))?;
+
+        Ok(profile_mods)
+    }
 }

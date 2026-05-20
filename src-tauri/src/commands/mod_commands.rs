@@ -23,6 +23,14 @@ fn build_profile_mod_link_path(
 }
 
 #[command]
+/// 扫描目录并注册模组
+/// 参数：
+/// - mods_directory: 模组目录路径
+/// 返回：
+/// - 扫描到的模组列表
+///
+/// 这里进行的是upsert操作, 通过unique_id进行upsert
+/// 不用理会update的模组的mod_path字段变化导致的profile的link_path失灵, 因为每次启动时, 会依据profile_id和mod_id进行查询, 构建profile下的link以及更新profile_mod表的link_path
 pub fn scan_and_register_mods(
     mods_directory: String,
 ) -> Result<Vec<crate::models::mod_info::ModInfo>, String> {

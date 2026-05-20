@@ -11,11 +11,13 @@ import HomePage from './pages/HomePage';
 import ModLibraryPage from './pages/ModLibraryPage';
 import ProfilesPage from './pages/ProfilesPage';
 import ProfileDetailPage from './pages/ProfileDetailPage';
+import ModDetailPage from './pages/ModDetailPage';
 import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+  const [selectedModUniqueId, setSelectedModUniqueId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const { config, isConfigured, fetchConfig, updateConfig } = useConfig();
@@ -58,10 +60,13 @@ function App() {
   }, [selectedProfileId, mods]);
 
   const handleNavigate = useCallback(
-    (page: string, profileId?: number) => {
-      if (profileId !== undefined) {
-        setSelectedProfileId(profileId);
+    (page: string, id?: number | string) => {
+      if (typeof id === 'number') {
+        setSelectedProfileId(id);
         setCurrentPage('profile-detail');
+      } else if (typeof id === 'string') {
+        setSelectedModUniqueId(id);
+        setCurrentPage('mod-detail');
       } else {
         setCurrentPage(page as Page);
       }
@@ -70,9 +75,14 @@ function App() {
   );
 
   const handleBack = useCallback(() => {
-    setSelectedProfileId(null);
-    setCurrentPage('profiles');
-  }, []);
+    if (currentPage === 'profile-detail') {
+      setSelectedProfileId(null);
+      setCurrentPage('profiles');
+    } else if (currentPage === 'mod-detail') {
+      setSelectedModUniqueId(null);
+      setCurrentPage('mods');
+    }
+  }, [currentPage]);
 
   const handleScan = useCallback(
     async (directory: string) => {
@@ -130,11 +140,11 @@ function App() {
 
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) || null;
 
-  return (
-    <div className="app">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main className="main-content">
-        {currentPage === 'home' && (
+  // 渲染当前页面
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return (
           <HomePage
             profiles={profiles}
             mods={mods}
@@ -143,48 +153,81 @@ function App() {
             onScanMods={handleScan}
             scanning={scanning}
           />
-        )}
-        {currentPage === 'mods' && (
+        );
+      case 'mods':
+        return (
           <ModLibraryPage
             mods={mods}
             profiles={profiles}
-            modsDirectory={config.modsDirectory}
+            modsDirectory={config?.modsDirectory}
             onScanMods={handleScan}
             scanning={scanning}
             onNavigate={handleNavigate}
           />
-        )}
-        {currentPage === 'profiles' && (
+        );
+      case 'profiles':
+        return (
           <ProfilesPage
             profiles={profiles}
             allMods={mods}
-            // ProfilesPage will query backend for each profile's mod count
             getModsForProfile={getModsForProfile}
             countsRefreshVersion={countsRefreshVersion}
-            config={config}
+            config={{ smapiPath: config?.smapiPath }}
             onNavigate={handleNavigate}
             onCreateProfile={handleCreateProfile}
             onDeleteProfile={handleDeleteProfile}
           />
-        )}
-        {currentPage === 'profile-detail' && selectedProfile && (
+        );
+      case 'profile-detail':
+        return selectedProfileId !== null ? (
           <ProfileDetailPage
-            profile={selectedProfile}
+            profile={profiles.find(p => p.id === selectedProfileId)!}
             profileMods={profileMods}
             allMods={mods}
-            config={config}
+            config={{ smapiPath: config?.smapiPath }}
             loading={profileModsLoading}
             onBack={handleBack}
-            onAddMod={wrappedAddMod}
-            onRemoveMod={wrappedRemoveMod}
-            onToggleMod={wrappedToggleEnabled}
+            onAddMod={addMod}
+            onRemoveMod={removeMod}
+            onToggleMod={toggleEnabled}
             onDeleteProfile={handleDeleteProfile}
-            onProfileUpdated={fetchProfiles}
+            onProfileUpdated={() => {}}
           />
-        )}
-        {currentPage === 'settings' && (
-          <SettingsPage config={config} onSave={updateConfig} />
-        )}
+        ) : null;
+      case 'mod-detail':
+        return selectedModUniqueId !== null ? (
+          <ModDetailPage
+            mod={mods.find(m => m.uniqueId === selectedModUniqueId)!}
+            profiles={profiles}
+            onNavigate={handleNavigate}
+          />
+        ) : null;
+      case 'settings':
+        return (
+          <SettingsPage
+            config={config || { smapiPath: '', modsDirectory: '' }}
+            onSave={updateConfig}
+          />
+        );
+      default:
+        return (
+          <HomePage
+            profiles={profiles}
+            mods={mods}
+            config={config}
+            onNavigate={handleNavigate}
+            onScanMods={handleScan}
+            scanning={scanning}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="app">
+      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      <main className="main-content">
+        {renderCurrentPage()}
       </main>
 
       {globalError && (

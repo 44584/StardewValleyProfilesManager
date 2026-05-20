@@ -11,7 +11,7 @@ interface ModLibraryPageProps {
   modsDirectory?: string;
   onScanMods: (directory: string) => Promise<void>;
   scanning: boolean;
-  onNavigate: (page: string) => void;
+  onNavigate: (page: string, modUniqueId?: string) => void;
 }
 
 export default function ModLibraryPage({ mods, profiles, modsDirectory, onScanMods, scanning, onNavigate }: ModLibraryPageProps) {
@@ -38,12 +38,6 @@ export default function ModLibraryPage({ mods, profiles, modsDirectory, onScanMo
     } finally {
       setAddingToProfile(null);
     }
-  };
-
-  const getModType = (mod: ModInfo) => {
-    if (mod.entryDll) return 'SMAPI模组';
-    if (mod.contentPackFor) return '内容包';
-    return '模组';
   };
 
   return (
@@ -88,62 +82,50 @@ export default function ModLibraryPage({ mods, profiles, modsDirectory, onScanMo
           }
         />
       ) : (
-        <div className="mod-table-wrapper">
-          <table className="mod-table">
-            <thead>
-              <tr>
-                <th>模组名称</th>
-                <th>作者</th>
-                <th>版本</th>
-                <th>类型</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((mod) => (
-                <tr key={mod.uniqueId}>
-                  <td>
-                    <div className="mod-name">{mod.name}</div>
-                    {mod.description && <div className="mod-desc">{mod.description}</div>}
-                  </td>
-                  <td>{mod.author}</td>
-                  <td>v{mod.version}</td>
-                  <td>
-                    <span className={`tag ${mod.entryDll ? 'tag-smapi' : mod.contentPackFor ? 'tag-content' : 'tag-mod'}`}>
-                      {getModType(mod)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="mod-actions-dropdown">
-                      {profiles.length === 0 ? (
-                        <span className="text-muted">无配置方案</span>
-                      ) : (
-                        <select
-                          className="form-select"
-                          value=""
-                          onChange={(e) => {
-                            const pid = Number(e.target.value);
-                            if (pid) {
-                              handleAddToProfile(pid, mod.uniqueId);
-                              e.target.value = '';
-                            }
-                          }}
-                          disabled={addingToProfile !== null}
-                        >
-                          <option value="">添加到配置...</option>
-                          {profiles.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mod-simple-list">
+          {filtered.map((mod) => (
+            <div key={mod.uniqueId} className="mod-simple-item">
+              <div className="mod-simple-info">
+                <div 
+                  className="mod-simple-name"
+                  onClick={() => onNavigate('mod-detail', mod.uniqueId)}
+                >
+                  {mod.name}
+                </div>
+              </div>
+              <div className="mod-simple-actions">
+                {profiles.length === 0 ? (
+                  <span className="text-muted">无配置方案</span>
+                ) : (
+                  <select
+                    className="form-select mod-add-select"
+                    value=""
+                    onChange={(e) => {
+                      const pid = Number(e.target.value);
+                      if (pid) {
+                        handleAddToProfile(pid, mod.uniqueId);
+                        e.target.value = '';
+                      }
+                    }}
+                    disabled={addingToProfile !== null}
+                  >
+                    <option value="">添加到...</option>
+                    {profiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <button 
+                  className="btn btn-link mod-view-detail"
+                  onClick={() => onNavigate('mod-detail', mod.uniqueId)}
+                >
+                  查看详情
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

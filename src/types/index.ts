@@ -34,4 +34,4 @@ export interface AppConfig {
   modsDirectory?: string;
 }
 
-export type Page = 'home' | 'mods' | 'profiles' | 'profile-detail' | 'settings';
+export type Page = 'home' | 'mods' | 'profiles' | 'profile-detail' | 'settings' | 'mod-detail';
