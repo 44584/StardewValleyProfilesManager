@@ -5,7 +5,6 @@ import SearchInput from '../components/SearchInput';
 import LoadingButton from '../components/LoadingButton';
 import EmptyState from '../components/EmptyState';
 import AddModsModal from '../modals/AddModsModal';
-import ConfirmDialog from '../components/ConfirmDialog';
 import { launchGameWithProfile, updateProfile } from '../utils/invoke';
 
 interface ProfileDetailPageProps {
@@ -18,7 +17,6 @@ interface ProfileDetailPageProps {
   onAddMod: (uniqueId: string) => Promise<void>;
   onRemoveMod: (uniqueId: string) => Promise<void>;
   onToggleMod: (uniqueId: string, enabled: boolean) => Promise<void>;
-  onDeleteProfile: (id: number) => Promise<void>;
   onProfileUpdated: () => void;
 }
 
@@ -32,12 +30,11 @@ export default function ProfileDetailPage({
   onAddMod,
   onRemoveMod,
   onToggleMod,
-  onDeleteProfile,
   onProfileUpdated,
 }: ProfileDetailPageProps) {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const [launching, setLaunching] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(profile.name);
@@ -101,18 +98,6 @@ export default function ProfileDetailPage({
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      console.log('[ProfileDetailPage] deleteProfile:start', { profileId: profile.id });
-      await onDeleteProfile(profile.id!);
-      console.log('[ProfileDetailPage] deleteProfile:success', { profileId: profile.id });
-      onBack();
-    } catch (err: any) {
-      console.error('[ProfileDetailPage] deleteProfile:error', { profileId: profile.id, err });
-      alert(err?.message || '删除失败');
-    }
-  };
-
   const handleToggleMod = async (uniqueId: string, nextEnabled: boolean) => {
     console.log('[ProfileDetailPage] toggleMod:start', {
       profileId: profile.id,
@@ -151,9 +136,11 @@ export default function ProfileDetailPage({
 
   return (
     <div className="page profile-detail-page">
-      <button className="back-btn" onClick={onBack}>
-        ← 返回配置列表
-      </button>
+      <div className="page-header-with-back">
+        <button className="btn btn-secondary" onClick={onBack}>
+          ← 返回配置列表
+        </button>
+      </div>
 
       <div className="profile-detail-header">
         {editing ? (
@@ -187,9 +174,6 @@ export default function ProfileDetailPage({
               <div className="profile-detail-actions">
                 <button className="btn btn-secondary btn-sm" onClick={() => setEditing(true)} title="编辑">
                   ✏️
-                </button>
-                <button className="btn btn-danger btn-sm" onClick={() => setShowDeleteConfirm(true)} title="删除">
-                  🗑️
                 </button>
               </div>
             </div>
@@ -284,16 +268,7 @@ export default function ProfileDetailPage({
         />
       )}
 
-      {showDeleteConfirm && (
-        <ConfirmDialog
-          title="删除配置方案"
-          message={`确定要删除「${profile.name}」吗？此操作不可恢复。`}
-          confirmText="删除"
-          isDanger
-          onConfirm={handleDelete}
-          onCancel={() => setShowDeleteConfirm(false)}
-        />
-      )}
+
     </div>
   );
 }

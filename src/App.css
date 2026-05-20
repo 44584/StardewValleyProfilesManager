@@ -139,6 +139,12 @@ html, body, #root {
   flex-wrap: wrap;
 }
 
+.page-header-with-back {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
 .page-title {
   font-size: 22px;
   font-weight: 600;

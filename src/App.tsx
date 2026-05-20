@@ -190,7 +190,6 @@ function App() {
             onAddMod={addMod}
             onRemoveMod={removeMod}
             onToggleMod={toggleEnabled}
-            onDeleteProfile={handleDeleteProfile}
             onProfileUpdated={() => {}}
           />
         ) : null;
