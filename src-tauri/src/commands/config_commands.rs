@@ -10,11 +10,12 @@ use crate::utils::get_app_data_dir;
 /// 应用配置结构
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppConfig {
-    /// 输出为 `smapiPath`，同时接受旧的 `smapi_path` 别名以兼容已有配置文件
-    #[serde(rename = "smapiPath", alias = "smapi_path")]
+    //当这个 AppConfig 结构被序列化成 JSON 时，字段会以键名 smapiPath 输出（而不是 Rust 字段名 smapi_path）。也就是说，写入的 config.json 中会包含 "smapiPath": "..."。
+    /// 因为读取时, 返回给前端的是结构体(Tauri 用 serde 将 Rust 值序列化为 JSON，然后在桥上转换为 JS 值)
+    #[serde(rename = "smapiPath")]
     pub smapi_path: Option<String>,
-    /// 输出为 `modsDirectory`，同时接受旧的 `mods_directory` 别名以兼容已有配置文件
-    #[serde(rename = "modsDirectory", alias = "mods_directory")]
+
+    #[serde(rename = "modsDirectory")]
     pub mods_directory: Option<String>,
 }
 

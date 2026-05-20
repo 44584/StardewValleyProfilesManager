@@ -19,10 +19,9 @@ function App() {
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const { config, isConfigured, fetchConfig, updateConfig } = useConfig();
-  const { mods, loading: modsLoading, scanning, fetchMods, scanMods } = useMods();
+  const { mods, scanning, fetchMods, scanMods } = useMods();
   const {
     profiles,
-    loading: profilesLoading,
     fetchProfiles,
     addProfile,
     removeProfile,
@@ -50,13 +49,6 @@ function App() {
       setCurrentPage('settings');
     }
   }, [isConfigured]);
-
-  // 配置完成后，如果用户还在设置页，则跳回配置列表页
-  useEffect(() => {
-    if (isConfigured && currentPage === 'settings') {
-      setCurrentPage('profiles');
-    }
-  }, [isConfigured, currentPage]);
 
   // 选中 Profile 时加载其模组
   useEffect(() => {

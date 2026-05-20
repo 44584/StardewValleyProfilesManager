@@ -1,7 +1,7 @@
 /// Mod数据访问层
 /// 提供mods表的CRUD操作和查询功能
 use crate::models::mod_info::ModInfo;
-use rusqlite::{Connection, params, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension};
 
 pub struct ModRepository {
     connection: Connection,
@@ -12,16 +12,18 @@ impl ModRepository {
     pub fn new(connection: Connection) -> Self {
         Self { connection }
     }
-    
+
     /// 保存或更新Mod信息（基于unique_id进行upsert）
     pub fn save_or_update(&self, mod_info: &ModInfo) -> Result<(), String> {
         // 检查是否已存在相同unique_id的记录
-        let exists = self.connection
+        let exists = self
+            .connection
             .prepare("SELECT COUNT(*) FROM mods WHERE unique_id = ?1")
             .map_err(|e| format!("准备查询语句失败: {}", e))?
             .query_row(params![&mod_info.unique_id], |row| row.get::<_, i32>(0))
-            .map_err(|e| format!("查询existing mod失败: {}", e))? > 0;
-        
+            .map_err(|e| format!("查询existing mod失败: {}", e))?
+            > 0;
+
         if exists {
             // 更新现有记录
             self.connection
@@ -74,10 +76,10 @@ impl ModRepository {
                 )
                 .map_err(|e| format!("插入mod失败: {}", e))?;
         }
-        
+
         Ok(())
     }
-    
+
     /// 获取所有已注册的模组
     pub fn get_all_mods(&self) -> Result<Vec<ModInfo>, String> {
         let mut stmt = self.connection
@@ -85,7 +87,7 @@ impl ModRepository {
                 "SELECT id, unique_id, name, author, version, description, entry_dll, content_pack_for, minimum_api_version, dependencies_json, update_keys_json, mod_path, manifest_hash FROM mods"
             )
             .map_err(|e| format!("准备查询语句失败: {}", e))?;
-        
+
         let mods: Vec<ModInfo> = stmt
             .query_map([], |row| {
                 Ok(ModInfo {
@@ -107,10 +109,10 @@ impl ModRepository {
             .map_err(|e| format!("查询所有mods失败: {}", e))?
             .collect::<Result<Vec<_>, _>>()
             .map_err(|e| format!("收集mods结果失败: {}", e))?;
-        
+
         Ok(mods)
     }
-    
+
     /// 根据unique_id查找模组
     pub fn find_by_unique_id(&self, unique_id: &str) -> Result<Option<ModInfo>, String> {
         let mut stmt = self.connection
@@ -118,7 +120,7 @@ impl ModRepository {
                 "SELECT id, unique_id, name, author, version, description, entry_dll, content_pack_for, minimum_api_version, dependencies_json, update_keys_json, mod_path, manifest_hash FROM mods WHERE unique_id = ?1"
             )
             .map_err(|e| format!("准备查询语句失败: {}", e))?;
-        
+
         let result = stmt
             .query_row(params![unique_id], |row| {
                 Ok(ModInfo {
@@ -139,10 +141,10 @@ impl ModRepository {
             })
             .optional()
             .map_err(|e| format!("查询mod失败: {}", e))?;
-        
+
         Ok(result)
     }
-    
+
     /// 根据ID查找模组
     pub fn get_by_id(&self, id: i32) -> Result<Option<ModInfo>, String> {
         let mut stmt = self.connection
@@ -150,7 +152,7 @@ impl ModRepository {
                 "SELECT id, unique_id, name, author, version, description, entry_dll, content_pack_for, minimum_api_version, dependencies_json, update_keys_json, mod_path, manifest_hash FROM mods WHERE id = ?1"
             )
             .map_err(|e| format!("准备查询语句失败: {}", e))?;
-        
+
         let result = stmt
             .query_row(params![id], |row| {
                 Ok(ModInfo {
@@ -171,7 +173,7 @@ impl ModRepository {
             })
             .optional()
             .map_err(|e| format!("查询mod失败: {}", e))?;
-        
+
         Ok(result)
     }
 }
